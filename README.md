@@ -19,4 +19,4 @@ Troubleshooting:
 
 ## How to develop this extension
 
-See [development.md](https://github.com/ruby/typeprof/blob/master/vscode/development.md).
+See [development.md](https://github.com/ruby/vscode-typeprof/blob/master/development.md).
