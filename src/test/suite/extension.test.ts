@@ -12,6 +12,7 @@ suite('completion', () => {
 	setup(async () => {
 		await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(simpleProgramPath));
 		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
+		await waitLockFiles();
 	});
 
 	teardown(() => {
@@ -34,6 +35,7 @@ suite('diagnostics', () => {
 	setup(async () => {
 		await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(simpleProgramPath));
 		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
+		await waitLockFiles();
 	});
 
 	teardown(() => {
@@ -73,6 +75,7 @@ suite('go to definitions', () => {
 	setup(async () => {
 		await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(simpleProgramPath));
 		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
+		await waitLockFiles();
 	});
 
 	teardown(() => {
@@ -100,6 +103,19 @@ async function openTargetFile(path: string) {
 	await vscode.window.showTextDocument(doc);
 	await new Promise(res => setTimeout(res, 5000));
 	return doc;
+}
+
+async function waitLockFiles() {
+	await waitFile(path.join(simpleProgramPath, 'rbs_collection.lock.yaml'));
+	await waitFile(path.join(simpleProgramPath, 'Gemfile.lock'));
+	await waitFile(path.join(simpleProgramPath, '.gem_rbs_collection'));
+}
+
+async function waitFile(file: string) {
+	while (true) {
+		if (fs.existsSync(file)) break;
+		await new Promise(res => setTimeout(res, 500));
+	}
 }
 
 function cleanUpFiles() {
