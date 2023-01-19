@@ -10,8 +10,10 @@ const simpleProgramPath = path.join(projectRoot, 'src', 'test', 'simpleProgram')
 
 suite('completion', () => {
 	setup(async () => {
+		// Do not put any processes here.
+		// By running 'vscode.openFolder', the process in the block that `vscode.openFolder` is executed 
+		// will be executed multiple times. This may cause a bug.
 		await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(simpleProgramPath));
-		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 	});
 
 	teardown(() => {
@@ -19,6 +21,7 @@ suite('completion', () => {
 	});
 
 	test('liam.', async () => {
+		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 		const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
 		const list = (await vscode.commands.executeCommand('vscode.executeCompletionItemProvider', doc.uri, new vscode.Position(13, 18))) as vscode.CompletionList;
 		const study = list.items.filter(item => item.label === 'study');
@@ -32,8 +35,10 @@ suite('completion', () => {
 
 suite('diagnostics', () => {
 	setup(async () => {
+		// Do not put any processes here.
+		// By running 'vscode.openFolder', the process in the block that `vscode.openFolder` is executed 
+		// will be executed multiple times. This may cause a bug.
 		await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(simpleProgramPath));
-		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 	});
 
 	teardown(() => {
@@ -41,6 +46,7 @@ suite('diagnostics', () => {
 	});
 
 	test('wrong number of arguments (given 0, expected 1)', async () => {
+		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 		const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
 		const diagnostics = vscode.languages.getDiagnostics(doc.uri);
 		const actual = diagnostics.filter(d => d.message === '[error] wrong number of arguments (given 0, expected 1)');
@@ -50,6 +56,7 @@ suite('diagnostics', () => {
 	});
 
 	test('wrong number of arguments (given 2, expected 1)', async () => {
+		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 		const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
 		const diagnostics = vscode.languages.getDiagnostics(doc.uri);
 		const actual = diagnostics.filter(d => d.message === '[error] wrong number of arguments (given 2, expected 1)');
@@ -59,6 +66,7 @@ suite('diagnostics', () => {
 	});
 
 	test('failed to resolve overload: Integer#+', async () => {
+		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 		const doc = await openTargetFile(path.join(simpleProgramPath, 'increment.rb'));
 		const diagnostics = vscode.languages.getDiagnostics(doc.uri);
 		const actual = diagnostics.filter(d => d.message === '[error] failed to resolve overload: Integer#+');
@@ -71,8 +79,10 @@ suite('diagnostics', () => {
 
 suite('go to definitions', () => {
 	setup(async () => {
+		// Do not put any processes here.
+		// By running 'vscode.openFolder', the process in the block that `vscode.openFolder` is executed 
+		// will be executed multiple times. This may cause a bug.
 		await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(simpleProgramPath));
-		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 	});
 
 	teardown(() => {
@@ -80,6 +90,7 @@ suite('go to definitions', () => {
 	});
 
 	test('go to initialize method', async () => {
+		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 		const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
 		const loc = (await vscode.commands.executeCommand('vscode.executeDefinitionProvider', doc.uri, new vscode.Position(10, 16))) as vscode.Location[];
 		console.log(loc.length.toString());
@@ -88,6 +99,7 @@ suite('go to definitions', () => {
 	});
 
 	test('go to study method', async () => {
+		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 		const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
 		const loc = (await vscode.commands.executeCommand('vscode.executeDefinitionProvider', doc.uri, new vscode.Position(11, 5))) as vscode.Location[];
 		assert.ok(loc && loc.length === 1);
