@@ -10,7 +10,6 @@ const simpleProgramPath = path.join(projectRoot, 'src', 'test', 'simpleProgram')
 
 suite('completion', () => {
 	setup(async () => {
-		await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(simpleProgramPath));
 		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 	});
 
@@ -32,7 +31,6 @@ suite('completion', () => {
 
 suite('diagnostics', () => {
 	setup(async () => {
-		await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(simpleProgramPath));
 		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 	});
 
@@ -71,7 +69,6 @@ suite('diagnostics', () => {
 
 suite('go to definitions', () => {
 	setup(async () => {
-		await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(simpleProgramPath));
 		cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
 	});
 
