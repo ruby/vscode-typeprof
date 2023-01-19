@@ -108,7 +108,7 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
   return typeprof;
 }
 
-function getTypeProfVersion(folder: vscode.WorkspaceFolder, outputChannel: vscode.OutputChannel, callback: (version: string) => void): child_process.ChildProcessWithoutNullStreams {
+function getTypeProfVersion(folder: vscode.WorkspaceFolder, callback: (version: string) => void): child_process.ChildProcessWithoutNullStreams {
   const typeprof = executeTypeProf(folder, "--version");
   let output = "";
 
@@ -187,7 +187,7 @@ function getTypeProfStream(folder: vscode.WorkspaceFolder, error: (msg: string) 
   });
 }
 
-function invokeTypeProf(folder: vscode.WorkspaceFolder, outputChannel: vscode.OutputChannel): LanguageClient {
+function invokeTypeProf(folder: vscode.WorkspaceFolder): LanguageClient {
   let client: LanguageClient;
 
   const reportError = (msg: string) => client.info(msg);
@@ -223,21 +223,20 @@ function invokeTypeProf(folder: vscode.WorkspaceFolder, outputChannel: vscode.Ou
 const clientSessions: Map<vscode.WorkspaceFolder, State> = new Map();
 
 function startTypeProf(folder: vscode.WorkspaceFolder) {
-  const outputChannel = vscode.window.createOutputChannel("Ruby TypeProf");
   const showStatus = (msg: string) => {
     outputChannel.appendLine("[vscode] " + msg);
     vscode.window.setStatusBarMessage(msg, 3000);
   }
   outputChannel.appendLine("[vscode] Try to start TypeProf for IDE");
 
-  const typeprof = getTypeProfVersion(folder, outputChannel, (version) => {
+  const typeprof = getTypeProfVersion(folder, (version) => {
     if (!version) {
       showStatus(`Ruby TypeProf is not configured; Try to add "gem 'typeprof'" to Gemfile`);
       clientSessions.delete(folder);
       return;
     }
     showStatus(`Starting Ruby TypeProf (${version})...`);
-    const client = invokeTypeProf(folder, outputChannel);
+    const client = invokeTypeProf(folder);
     client.onReady()
     .then(() => {
       showStatus("Ruby TypeProf is running");
@@ -293,12 +292,15 @@ function ensureTypeProf() {
 
 function addRestartCommand(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand("typeprof.restart", () => {
+		outputChannel.clear();
     restartTypeProf();
   });
   context.subscriptions.push(disposable);
 }
 
+let outputChannel: vscode.OutputChannel;
 export function activate(context: vscode.ExtensionContext) {
+  outputChannel = vscode.window.createOutputChannel("Ruby TypeProf");
   addToggleButton(context);
   addJumpToRBS(context);
   addRestartCommand(context)
