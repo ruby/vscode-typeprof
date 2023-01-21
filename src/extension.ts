@@ -108,7 +108,7 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
   return typeprof;
 }
 
-function getTypeProfVersion(folder: vscode.WorkspaceFolder, callback: (version: string) => void): child_process.ChildProcessWithoutNullStreams {
+function getTypeProfVersion(folder: vscode.WorkspaceFolder, callback: (err: Error | null, version: string) => void): child_process.ChildProcessWithoutNullStreams {
   const typeprof = executeTypeProf(folder, "--version");
   let output = "";
 
@@ -138,18 +138,24 @@ function getTypeProfVersion(folder: vscode.WorkspaceFolder, callback: (version: 
         const minor = Number(version[2]);
         const _teeny = Number(version[3]);
         if (major >= 1 || (major == 0 && minor >= 20)) {
-          callback(str);
+          callback(null, str);
         }
         else {
-          log(`typeprof version ${str} is too old; please use 0.20.0 or later for IDE feature`);
+					const err = new Error(`typeprof version ${str} is too old; please use 0.20.0 or later for IDE feature`)
+          log(err.message);
+					callback(err, '');
         }
       }
       else {
-        log(`typeprof --version showed unknown message`);
+        const err = new Error(`typeprof --version showed unknown message`);
+				log(err.message);
+				callback(err, '');
       }
     }
     else {
-      log(`failed to invoke typeprof: error code ${code}`);
+      const err = new Error(`failed to invoke typeprof: error code ${code}`);
+			log(err.message);
+			callback(err, '');
     }
     typeprof.kill()
   });
@@ -229,9 +235,9 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
   }
   outputChannel.appendLine("[vscode] Try to start TypeProf for IDE");
 
-  const typeprof = getTypeProfVersion(folder, (version) => {
-    if (!version) {
-      showStatus(`Ruby TypeProf is not configured; Try to add "gem 'typeprof'" to Gemfile`);
+  const typeprof = getTypeProfVersion(folder, (err, version) => {
+    if (err !== null) {
+      showStatus(`Ruby TypeProf is not configured: ${err.message}; Try to add "gem 'typeprof'" to Gemfile`);
       clientSessions.delete(folder);
       return;
     }
