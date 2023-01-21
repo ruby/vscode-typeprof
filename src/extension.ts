@@ -266,11 +266,17 @@ function stopTypeProf(state: State) {
 }
 
 function restartTypeProf() {
-  vscode.workspace.workspaceFolders?.forEach((folder) => {
-    let state = clientSessions.get(folder);
-    if (state) stopTypeProf(state);
-    startTypeProf(folder);
-  });
+	if (!vscode.workspace.workspaceFolders) return;
+
+	stopAllSessions();
+	for (const folder of vscode.workspace.workspaceFolders) {
+		if (folder.uri.scheme === "file") {
+			let state = clientSessions.get(folder);
+			if (state) stopTypeProf(state);
+			startTypeProf(folder);
+			break;
+		}
+	}
 }
 
 function ensureTypeProf() {
@@ -284,11 +290,12 @@ function ensureTypeProf() {
     }
   });
 
-  activeFolders.forEach((folder) => {
-    if (folder.uri.scheme === "file" && !clientSessions.has(folder)) {
+	for (const folder of activeFolders) {
+		if (folder.uri.scheme === "file" && !clientSessions.has(folder)) {
       startTypeProf(folder);
+			break;
     }
-  });
+	}
 }
 
 function addRestartCommand(context: vscode.ExtensionContext) {
@@ -305,8 +312,12 @@ export function activate(context: vscode.ExtensionContext) {
   ensureTypeProf();
 }
 
-export function deactivate() {
-  clientSessions.forEach((state) => {
+function stopAllSessions() {
+	clientSessions.forEach((state) => {
     stopTypeProf(state);
   });
+}
+
+export function deactivate() {
+  stopAllSessions();
 }
