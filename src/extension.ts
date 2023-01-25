@@ -86,15 +86,15 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
   const shell = process.env.SHELL;
   let typeprof: child_process.ChildProcessWithoutNullStreams;
   if (shell && (shell.endsWith("bash") || shell.endsWith("zsh") || shell.endsWith("fish"))) {
-		const args: string[] = [];
-		if (shell.endsWith('zsh')) {
-			// As the recommended way, initialization commands for rbenv are written in ".zshrc".
-			// However, it's not loaded on the non-interactive shell.
-			// Thus, we need to run this command as the interactive shell.
-			// FYI: https://zsh.sourceforge.io/Guide/zshguide02.html
-			args.push('-i');
-		}
-		args.push("-l", "-c", cmd);
+    const args: string[] = [];
+    if (shell.endsWith('zsh')) {
+      // As the recommended way, initialization commands for rbenv are written in ".zshrc".
+      // However, it's not loaded on the non-interactive shell.
+      // Thus, we need to run this command as the interactive shell.
+      // FYI: https://zsh.sourceforge.io/Guide/zshguide02.html
+      args.push('-i');
+    }
+    args.push("-l", "-c", cmd);
     typeprof = child_process.spawn(shell, args, { cwd });
   }
   else if (process.platform === "win32") {
@@ -238,12 +238,12 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
     showStatus(`Starting Ruby TypeProf (${version})...`);
     const client = invokeTypeProf(folder);
     client.onReady()
-    .then(() => {
-      showStatus("Ruby TypeProf is running");
-    })
-    .catch((e: any) => {
-      showStatus(`Failed to start Ruby TypeProf: ${e}`);
-    });
+      .then(() => {
+        showStatus("Ruby TypeProf is running");
+      })
+      .catch((e: any) => {
+        showStatus(`Failed to start Ruby TypeProf: ${e}`);
+      });
     client.start();
     clientSessions.set(folder, { kind: "running", workspaceFolder: folder, client });
   });
@@ -253,29 +253,29 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
 
 function stopTypeProf(state: State) {
   switch (state.kind) {
-    case "invoking":
-      state.process.kill();
+  case "invoking":
+    state.process.kill();
 
-      break;
-    case "running":
-      state.client.stop();
-      break;
+    break;
+  case "running":
+    state.client.stop();
+    break;
   }
   clientSessions.delete(state.workspaceFolder);
 }
 
 function restartTypeProf() {
-	if (!vscode.workspace.workspaceFolders) return;
+  if (!vscode.workspace.workspaceFolders) return;
 
-	stopAllSessions();
-	for (const folder of vscode.workspace.workspaceFolders) {
-		if (folder.uri.scheme === "file") {
-			let state = clientSessions.get(folder);
-			if (state) stopTypeProf(state);
-			startTypeProf(folder);
-			break;
-		}
-	}
+  stopAllSessions();
+  for (const folder of vscode.workspace.workspaceFolders) {
+    if (folder.uri.scheme === "file") {
+      let state = clientSessions.get(folder);
+      if (state) stopTypeProf(state);
+      startTypeProf(folder);
+      break;
+    }
+  }
 }
 
 function ensureTypeProf() {
@@ -289,17 +289,17 @@ function ensureTypeProf() {
     }
   });
 
-	for (const folder of activeFolders) {
-		if (folder.uri.scheme === "file" && !clientSessions.has(folder)) {
+  for (const folder of activeFolders) {
+    if (folder.uri.scheme === "file" && !clientSessions.has(folder)) {
       startTypeProf(folder);
-			break;
+      break;
     }
-	}
+  }
 }
 
 function addRestartCommand(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand("typeprof.restart", () => {
-		outputChannel.clear();
+    outputChannel.clear();
     restartTypeProf();
   });
   context.subscriptions.push(disposable);
@@ -315,7 +315,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function stopAllSessions() {
-	clientSessions.forEach((state) => {
+  clientSessions.forEach((state) => {
     stopTypeProf(state);
   });
 }
