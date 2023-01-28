@@ -24,11 +24,11 @@ type State = Invoking | Running;
 
 const CONFIGURATION_ROOT_SECTION = "typeprof";
 
+let statusBarItem: vscode.StatusBarItem;
 function addToggleButton(context: vscode.ExtensionContext) {
-  let statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+  statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   statusBarItem.command = "typeprof.toggle";
   statusBarItem.text = "TypeProf $(eye)";
-  statusBarItem.show();
 
   const disposable = vscode.commands.registerCommand("typeprof.toggle",
     (arg0: any, arg1: any, arg2: any, arg3: any) => {
@@ -59,6 +59,18 @@ function addJumpToRBS(context: vscode.ExtensionContext) {
       vscode.commands.executeCommand("editor.action.peekLocations", uri0, pos0, [loc], "peek");
     }
   );
+
+  context.subscriptions.push(disposable);
+}
+
+let progressBarItem: vscode.StatusBarItem;
+function addJumpToOutputChannel(context: vscode.ExtensionContext) {
+  progressBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
+  progressBarItem.command = 'typeprof.jumpToOutputChannel';
+
+  const disposable = vscode.commands.registerCommand('typeprof.jumpToOutputChannel', () => {
+    outputChannel.show();
+  });
 
   context.subscriptions.push(disposable);
 }
@@ -227,17 +239,20 @@ function invokeTypeProf(folder: vscode.WorkspaceFolder): LanguageClient {
 }
 
 const clientSessions: Map<vscode.WorkspaceFolder, State> = new Map();
+const timeoutSec = 10000;
 
 function startTypeProf(folder: vscode.WorkspaceFolder) {
   const showStatus = (msg: string) => {
     outputChannel.appendLine("[vscode] " + msg);
-    vscode.window.setStatusBarMessage(msg, 3000);
+    progressBarItem.text = `$(sync~spin) ${msg}`;
   }
-  outputChannel.appendLine("[vscode] Try to start TypeProf for IDE");
+  showStatus("Try to start TypeProf for IDE");
 
+  progressBarItem.show();
   const typeprof = getTypeProfVersion(folder, (err, version) => {
     if (err !== null) {
       showStatus(`Ruby TypeProf is not configured: ${err.message}; Try to add "gem 'typeprof'" to Gemfile`);
+      showFailedStatus();
       clientSessions.delete(folder);
       return;
     }
@@ -249,12 +264,25 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
       })
       .catch((e: any) => {
         showStatus(`Failed to start Ruby TypeProf: ${e}`);
+        showFailedStatus();
+        return;
       });
+    progressBarItem.hide();
+    statusBarItem.show();
     client.start();
     clientSessions.set(folder, { kind: "running", workspaceFolder: folder, client });
   });
 
   clientSessions.set(folder, { kind: "invoking", workspaceFolder: folder, process: typeprof });
+}
+
+function showFailedStatus() {
+  setTimeout(() => {
+    progressBarItem.hide();
+    statusBarItem.text = '$(error) TypeProf';
+    statusBarItem.command = 'typeprof.jumpToOutputChannel';
+    statusBarItem.show();
+  }, timeoutSec);
 }
 
 function stopTypeProf(state: State) {
@@ -305,6 +333,8 @@ function ensureTypeProf() {
 
 function addRestartCommand(context: vscode.ExtensionContext) {
   const disposable = vscode.commands.registerCommand("typeprof.restart", () => {
+    progressBarItem.hide();
+    statusBarItem.hide();
     outputChannel.clear();
     restartTypeProf();
   });
@@ -315,6 +345,7 @@ let outputChannel: vscode.OutputChannel;
 export function activate(context: vscode.ExtensionContext) {
   outputChannel = vscode.window.createOutputChannel("Ruby TypeProf");
   addToggleButton(context);
+  addJumpToOutputChannel(context);
   addJumpToRBS(context);
   addRestartCommand(context)
   ensureTypeProf();
@@ -327,5 +358,7 @@ function stopAllSessions() {
 }
 
 export function deactivate() {
+  progressBarItem.dispose();
+  statusBarItem.dispose();
   stopAllSessions();
 }
