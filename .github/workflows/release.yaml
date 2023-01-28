@@ -1,0 +1,26 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+# The following codes are borrowed from https://github.com/ruby/vscode-rdbg/blob/master/.github/workflows/release.yml.
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+    - name: Publish
+      run: |
+        npm install
+        npm install --global @vscode/vsce
+        vsce publish
+      env:
+        # To help protect secrets, we set VSCE_PAT as an environemnt variables.
+        # https://docs.github.com/en/actions/security-guides/encrypted-secrets#using-encrypted-secrets-in-a-workflow
+        VSCE_PAT: ${{ secrets.VSCE_PAT }}
