@@ -251,7 +251,7 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
   progressBarItem.show();
   const typeprof = getTypeProfVersion(folder, (err, version) => {
     if (err !== null) {
-      showStatus(`Ruby TypeProf is not configured: ${err.message}; Try to add "gem 'typeprof'" to Gemfile`);
+      showStatus(`Ruby TypeProf is not configured`);
       showFailedStatus();
       clientSessions.delete(folder);
       return;
