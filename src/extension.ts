@@ -70,9 +70,17 @@ function addJumpToOutputChannel(context: vscode.ExtensionContext) {
 
   const disposable = vscode.commands.registerCommand('typeprof.jumpToOutputChannel', () => {
     outputChannel.show();
+    progressBarItem.hide();
+    showErrorStatusBar();
   });
 
   context.subscriptions.push(disposable);
+}
+
+function showErrorStatusBar() {
+  statusBarItem.text = '$(error) TypeProf';
+  statusBarItem.command = 'typeprof.jumpToOutputChannel';
+  statusBarItem.show();
 }
 
 function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_process.ChildProcessWithoutNullStreams {
@@ -279,9 +287,7 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
 function showFailedStatus() {
   setTimeout(() => {
     progressBarItem.hide();
-    statusBarItem.text = '$(error) TypeProf';
-    statusBarItem.command = 'typeprof.jumpToOutputChannel';
-    statusBarItem.show();
+    showErrorStatusBar();
   }, timeoutSec);
 }
 
