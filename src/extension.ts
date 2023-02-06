@@ -153,21 +153,21 @@ function getTypeProfVersion(folder: vscode.WorkspaceFolder, callback: (err: Erro
           callback(null, str);
         }
         else {
-					const err = new Error(`typeprof version ${str} is too old; please use 0.20.0 or later for IDE feature`)
+          const err = new Error(`typeprof version ${str} is too old; please use 0.20.0 or later for IDE feature`)
           log(err.message);
-					callback(err, '');
+          callback(err, '');
         }
       }
       else {
         const err = new Error(`typeprof --version showed unknown message`);
-				log(err.message);
-				callback(err, '');
+        log(err.message);
+        callback(err, '');
       }
     }
     else {
       const err = new Error(`failed to invoke typeprof: error code ${code}`);
-			log(err.message);
-			callback(err, '');
+      log(err.message);
+      callback(err, '');
     }
     typeprof.kill()
   });
