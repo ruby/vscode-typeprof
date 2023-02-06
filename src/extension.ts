@@ -32,7 +32,7 @@ function addToggleButton(context: vscode.ExtensionContext) {
 
   const disposable = vscode.commands.registerCommand("typeprof.toggle",
     (arg0: any, arg1: any, arg2: any, arg3: any) => {
-      if (statusBarItem.text == "TypeProf $(eye)") {
+      if (statusBarItem.text === "TypeProf $(eye)") {
         statusBarItem.text = "TypeProf $(eye-closed)";
         vscode.commands.executeCommand("typeprof.disableSignature");
       }
@@ -121,7 +121,7 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
     typeprof = child_process.spawn(process.env.SYSTEMROOT + "\\System32\\cmd.exe", ["/c", cmd], { cwd });
   }
   else {
-    const cmds = cmd.split(' ')
+    const cmds = cmd.split(' ');
     typeprof = child_process.spawn(cmds[0], cmds.slice(1), { cwd });
   }
 
@@ -149,19 +149,19 @@ function getTypeProfVersion(folder: vscode.WorkspaceFolder, callback: (err: Erro
     log(`because: ${e}`);
   });
   typeprof.on("exit", (code) => {
-    if (code == 0) {
+    if (code === 0) {
       const str = output.trim();
-      log(`typeprof version: ${str}`)
+      log(`typeprof version: ${str}`);
       const version = /^typeprof (\d+).(\d+).(\d+)$/.exec(str);
       if (version) {
         const major = Number(version[1]);
         const minor = Number(version[2]);
         const _teeny = Number(version[3]);
-        if (major >= 1 || (major == 0 && minor >= 20)) {
+        if (major >= 1 || (major === 0 && minor >= 20)) {
           callback(null, str);
         }
         else {
-          const err = new Error(`typeprof version ${str} is too old; please use 0.20.0 or later for IDE feature`)
+          const err = new Error(`typeprof version ${str} is too old; please use 0.20.0 or later for IDE feature`);
           log(err.message);
           callback(err, '');
         }
@@ -177,7 +177,7 @@ function getTypeProfVersion(folder: vscode.WorkspaceFolder, callback: (err: Erro
       log(err.message);
       callback(err, '');
     }
-    typeprof.kill()
+    typeprof.kill();
   });
   return typeprof;
 }
@@ -203,7 +203,7 @@ function getTypeProfStream(folder: vscode.WorkspaceFolder, error: (msg: string) 
       err += data;
       while (true) {
         const i = err.indexOf("\n");
-        if (i < 0) break;
+        if (i < 0) { break; }
         error(err.slice(0, i));
         err = err.slice(i + 1);
       }
@@ -221,7 +221,7 @@ function invokeTypeProf(folder: vscode.WorkspaceFolder): LanguageClient {
   const serverOptions: ServerOptions = async () => {
     const { host, port, stop } = await getTypeProfStream(folder, reportError);
     const socket: net.Socket = net.createConnection(port, host);
-    socket.on("close", (_had_error) => stop());
+    socket.on("close", (_hadError) => stop());
 
     return {
       reader: socket,
@@ -253,7 +253,7 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
   const showStatus = (msg: string) => {
     outputChannel.appendLine("[vscode] " + msg);
     progressBarItem.text = `$(sync~spin) ${msg}`;
-  }
+  };
   showStatus("Try to start TypeProf for IDE");
 
   progressBarItem.show();
@@ -305,13 +305,13 @@ function stopTypeProf(state: State) {
 }
 
 function restartTypeProf() {
-  if (!vscode.workspace.workspaceFolders) return;
+  if (!vscode.workspace.workspaceFolders) { return; }
 
   stopAllSessions();
   for (const folder of vscode.workspace.workspaceFolders) {
     if (folder.uri.scheme === "file") {
       let state = clientSessions.get(folder);
-      if (state) stopTypeProf(state);
+      if (state) { stopTypeProf(state); }
       startTypeProf(folder);
       break;
     }
@@ -319,7 +319,7 @@ function restartTypeProf() {
 }
 
 function ensureTypeProf() {
-  if (!vscode.workspace.workspaceFolders) return;
+  if (!vscode.workspace.workspaceFolders) { return; }
 
   const activeFolders = new Set(vscode.workspace.workspaceFolders);
 
@@ -353,7 +353,7 @@ export function activate(context: vscode.ExtensionContext) {
   addToggleButton(context);
   addJumpToOutputChannel(context);
   addJumpToRBS(context);
-  addRestartCommand(context)
+  addRestartCommand(context);
   ensureTypeProf();
 }
 

@@ -23,9 +23,9 @@ suite('completion', () => {
     const study = list.items.filter(item => item.label === 'study');
     assert.strictEqual(study.length, 1);
     assert.strictEqual(study[0].kind, vscode.CompletionItemKind.Method);
-    const singleton_class = list.items.filter(item => item.label === 'singleton_class');
-    assert.strictEqual(singleton_class[0].kind, vscode.CompletionItemKind.Method);
-    assert.ok(singleton_class.length === 1);
+    const singletonClass = list.items.filter(item => item.label === 'singleton_class');
+    assert.strictEqual(singletonClass[0].kind, vscode.CompletionItemKind.Method);
+    assert.ok(singletonClass.length === 1);
   });
 });
 
