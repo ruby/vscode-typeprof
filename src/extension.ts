@@ -25,7 +25,7 @@ type State = Invoking | Running;
 const CONFIGURATION_ROOT_SECTION = "typeprof";
 
 let statusBarItem: vscode.StatusBarItem;
-function addToggleButton(context: vscode.ExtensionContext) {
+function addToggleButton() {
   statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   statusBarItem.command = "typeprof.toggle";
   statusBarItem.text = "TypeProf $(eye)";
@@ -46,7 +46,7 @@ function addToggleButton(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 }
 
-function addJumpToRBS(context: vscode.ExtensionContext) {
+function addJumpToRBS() {
   const disposable = vscode.commands.registerCommand("typeprof.jumpToRBS",
     (arg0: any, arg1: any, arg2: any, arg3: any) => {
       const uri0 = vscode.Uri.parse(arg0);
@@ -64,7 +64,7 @@ function addJumpToRBS(context: vscode.ExtensionContext) {
 }
 
 let progressBarItem: vscode.StatusBarItem;
-function addJumpToOutputChannel(context: vscode.ExtensionContext) {
+function addJumpToOutputChannel() {
   progressBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
   progressBarItem.command = 'typeprof.jumpToOutputChannel';
 
@@ -263,6 +263,12 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
     }
     showStatus(`Starting Ruby TypeProf (${version})...`);
     client = invokeTypeProf(folder);
+    context.subscriptions.push(
+      client.onNotification('typeprof.failedToStart', () => {
+        showFailedStatus();
+        client?.stop();
+      })
+    );
     progressBarItem.hide();
     statusBarItem.show();
     await client.start();
@@ -325,7 +331,7 @@ function ensureTypeProf() {
   }
 }
 
-function addRestartCommand(context: vscode.ExtensionContext) {
+function addRestartCommand() {
   const disposable = vscode.commands.registerCommand("typeprof.restart", () => {
     progressBarItem.hide();
     statusBarItem.hide();
@@ -336,12 +342,14 @@ function addRestartCommand(context: vscode.ExtensionContext) {
 }
 
 let outputChannel: vscode.OutputChannel;
-export function activate(context: vscode.ExtensionContext) {
+let context: vscode.ExtensionContext;
+export function activate(ctx: vscode.ExtensionContext) {
+  context = ctx;
   outputChannel = vscode.window.createOutputChannel("Ruby TypeProf");
-  addToggleButton(context);
-  addJumpToOutputChannel(context);
-  addJumpToRBS(context);
-  addRestartCommand(context);
+  addToggleButton();
+  addJumpToOutputChannel();
+  addJumpToRBS();
+  addRestartCommand();
   ensureTypeProf();
 }
 
