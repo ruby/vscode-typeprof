@@ -214,9 +214,7 @@ function getTypeProfStream(folder: vscode.WorkspaceFolder, error: (msg: string) 
 }
 
 function invokeTypeProf(folder: vscode.WorkspaceFolder): LanguageClient {
-  let client: LanguageClient;
-
-  const reportError = (msg: string) => client.info(msg);
+  const reportError = (msg: string) => client?.info(msg);
 
   const serverOptions: ServerOptions = async () => {
     const { host, port, stop } = await getTypeProfStream(folder, reportError);
@@ -241,14 +239,13 @@ function invokeTypeProf(folder: vscode.WorkspaceFolder): LanguageClient {
     },
   };
 
-  client = new LanguageClient("Ruby TypeProf", serverOptions, clientOptions);
-
-  return client;
+  return new LanguageClient("Ruby TypeProf", serverOptions, clientOptions);
 }
 
 const clientSessions: Map<vscode.WorkspaceFolder, State> = new Map();
 const timeoutSec = 10000;
 
+let client: LanguageClient | undefined;
 function startTypeProf(folder: vscode.WorkspaceFolder) {
   const showStatus = (msg: string) => {
     outputChannel.appendLine("[vscode] " + msg);
@@ -265,7 +262,7 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
       return;
     }
     showStatus(`Starting Ruby TypeProf (${version})...`);
-    const client = invokeTypeProf(folder);
+    client = invokeTypeProf(folder);
     progressBarItem.hide();
     statusBarItem.show();
     await client.start();
@@ -358,4 +355,7 @@ export function deactivate() {
   progressBarItem.dispose();
   statusBarItem.dispose();
   stopAllSessions();
+  if (client !== undefined) {
+    return client.stop();
+  }
 }
