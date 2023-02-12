@@ -257,7 +257,7 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
   showStatus("Try to start TypeProf for IDE");
 
   progressBarItem.show();
-  const typeprof = getTypeProfVersion(folder, (err, version) => {
+  const typeprof = getTypeProfVersion(folder, async (err, version) => {
     if (err !== null) {
       showStatus(`Ruby TypeProf is not configured`);
       showFailedStatus();
@@ -266,18 +266,9 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
     }
     showStatus(`Starting Ruby TypeProf (${version})...`);
     const client = invokeTypeProf(folder);
-    client.onReady()
-      .then(() => {
-        showStatus("Ruby TypeProf is running");
-      })
-      .catch((e: any) => {
-        showStatus(`Failed to start Ruby TypeProf: ${e}`);
-        showFailedStatus();
-        return;
-      });
     progressBarItem.hide();
     statusBarItem.show();
-    client.start();
+    await client.start();
     clientSessions.set(folder, { kind: "running", workspaceFolder: folder, client });
   });
 
