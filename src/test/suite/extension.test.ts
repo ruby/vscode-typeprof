@@ -9,7 +9,7 @@ const projectRoot = path.join(__dirname, '..', '..', '..', '..');
 const simpleProgramPath = path.join(projectRoot, 'src', 'test', 'simpleProgram');
 
 suite('completion', () => {
-  setup(async () => {
+  setup(() => {
     cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
   });
 
@@ -30,7 +30,7 @@ suite('completion', () => {
 });
 
 suite('diagnostics', () => {
-  setup(async () => {
+  setup(() => {
     cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
   });
 
@@ -68,7 +68,7 @@ suite('diagnostics', () => {
 });
 
 suite('go to definitions', () => {
-  setup(async () => {
+  setup(() => {
     cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
   });
 
