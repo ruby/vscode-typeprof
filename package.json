@@ -64,7 +64,7 @@
         "@types/glob": "^8.0.0",
         "@types/mocha": "^10.0.1",
         "@types/node": "^14.14.37",
-        "@types/vscode": "^1.74.0",
+        "@types/vscode": "^1.75.1",
         "@typescript-eslint/eslint-plugin": "^5.49.0",
         "@vscode/test-electron": "^2.2.1",
         "eslint": "^8.32.0",
