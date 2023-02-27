@@ -11,7 +11,7 @@ const simpleProgramPath = path.join(projectRoot, 'src', 'test', 'simpleProgram')
 suite('completion', () => {
   setup(() => {
     cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
-    const foo = cp.execSync('bundle exec typeprof --version', { cwd: simpleProgramPath });
+    const foo = cp.execSync('bundle exec typeprof student.rb', { cwd: simpleProgramPath });
     console.log('foo')
     console.log(foo.toString());
   });
