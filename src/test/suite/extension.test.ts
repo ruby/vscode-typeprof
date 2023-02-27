@@ -42,7 +42,7 @@ suite('diagnostics', () => {
     const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
     const diagnostics = vscode.languages.getDiagnostics(doc.uri);
     const actual = diagnostics.filter(d => d.message === '[error] wrong number of arguments (given 0, expected 1)');
-    assert.ok(actual.length === 1);
+    assert.ok(actual.length === 1, 'expected to has error message, but not. diagnostics' + diagnostics.toString());
     assert.strictEqual(actual[0].severity, vscode.DiagnosticSeverity.Error);
     assert.deepStrictEqual(actual[0].range, new vscode.Range(new vscode.Position(13, 0), new vscode.Position(13, 10)));
   });
