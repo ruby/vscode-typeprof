@@ -271,12 +271,12 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
     await client.start();
     showStatus("Ruby TypeProf is running");
     context.subscriptions.push(
-      client.onNotification('typeprof.enableToggle', () => {
-        enableToggleButton();
-      }),
-      client.onNotification('typeprof.fatalError', () => {
-        showFailedStatus();
-      })
+      // client.onNotification('typeprof.enableToggle', () => {
+      //   enableToggleButton();
+      // }),
+      // client.onNotification('typeprof.fatalError', () => {
+      //   showFailedStatus();
+      // })
     );
     clientSessions.set(folder, { kind: "running", workspaceFolder: folder, client });
   });
