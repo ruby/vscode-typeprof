@@ -29,7 +29,12 @@ jobs:
         node-version: 16.x
     - run: gem install bundler
     - run: npm install
-    - run: xvfb-run -a npm test
+    - name: Lint ESLint
+      run: npm run lint:eslint
+    - name: Lint Prettier
+      run: npm run lint:prettier
+    - name: Test
+      run: xvfb-run -a npm test
 
   dependabot:
     needs: test

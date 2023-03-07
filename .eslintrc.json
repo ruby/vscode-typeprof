@@ -10,17 +10,18 @@
     ],
     "rules": {
         "@typescript-eslint/naming-convention": "warn",
-        "@typescript-eslint/semi": "warn",
         "curly": "warn",
         "eqeqeq": "warn",
         "no-throw-literal": "warn",
-        "semi": "off",
-        "no-mixed-spaces-and-tabs": "error",
-        "indent": ["error", 2]
+        "semi": "off"
     },
     "ignorePatterns": [
         "out",
         "dist",
         "**/*.d.ts"
+    ],
+    "extends": [
+        // Make sure to put "prettier" last to override other configs.
+        "prettier"
     ]
 }
