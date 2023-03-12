@@ -59,9 +59,9 @@
         "test": "node ./out/src/test/runTest.js",
         "lint:eslint": "eslint src --ext ts",
         "lint:prettier": "prettier --check 'src/**/*.ts'",
-        "fix:eslint": "npm run lint:eslint -- --fix",
-        "fix:prettier": "npm run lint:prettier -- --write",
-        "fix": "npm run fix:eslint && npm run fix:prettier",
+        "format:eslint": "npm run lint:eslint -- --fix",
+        "format:prettier": "npm run lint:prettier -- --write",
+        "format": "npm run fix:eslint && npm run fix:prettier",
         "package": "vsce package"
     },
     "devDependencies": {
