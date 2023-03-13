@@ -236,8 +236,14 @@ function invokeTypeProf(folder: vscode.WorkspaceFolder): LanguageClient {
             fileEvents: vscode.workspace.createFileSystemWatcher('{**/*.rb,**/*.rbs}'),
         },
     };
+    const configuration = vscode.workspace.getConfiguration(CONFIGURATION_ROOT_SECTION);
+    const trace = configuration.get<string>('trace.server');
+    if (trace !== 'off') {
+        traceOutputChannel = vscode.window.createOutputChannel('Ruby TypeProf(server)', 'typeprof');
+        clientOptions.traceOutputChannel = traceOutputChannel;
+    }
 
-    return new LanguageClient('Ruby TypeProf', serverOptions, clientOptions);
+    return new LanguageClient('typeprof', 'Ruby TypeProf', serverOptions, clientOptions);
 }
 
 const clientSessions: Map<vscode.WorkspaceFolder, State> = new Map();
@@ -334,12 +340,16 @@ function addRestartCommand(context: vscode.ExtensionContext) {
         progressBarItem.hide();
         statusBarItem.hide();
         outputChannel.clear();
+        if (traceOutputChannel) {
+            traceOutputChannel.dispose();
+        }
         restartTypeProf();
     });
     context.subscriptions.push(disposable);
 }
 
 let outputChannel: vscode.OutputChannel;
+let traceOutputChannel: vscode.OutputChannel | undefined;
 export function activate(context: vscode.ExtensionContext) {
     outputChannel = vscode.window.createOutputChannel('Ruby TypeProf');
     addToggleButton(context);

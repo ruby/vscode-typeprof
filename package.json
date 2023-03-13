@@ -46,6 +46,17 @@
                         ],
                         "default": null,
                         "description": "Path to typeprof executable. (e.g. /usr/local/bin/bundle)"
+                    },
+                    "typeprof.trace.server": {
+                        "scope": "window",
+                        "type": "string",
+                        "enum": [
+                            "off",
+                            "messages",
+                            "verbose"
+                        ],
+                        "default": "off",
+                        "description": "Traces the communication between VS Code and the typeprof server."
                     }
                 }
             }
