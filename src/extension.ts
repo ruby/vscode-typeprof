@@ -23,8 +23,6 @@ const CONFIGURATION_ROOT_SECTION = 'typeprof';
 let statusBarItem: vscode.StatusBarItem;
 function addToggleButton(context: vscode.ExtensionContext) {
     statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    statusBarItem.command = 'typeprof.toggle';
-    statusBarItem.text = 'TypeProf $(eye)';
 
     const disposable = vscode.commands.registerCommand(
         'typeprof.toggle',
@@ -40,6 +38,12 @@ function addToggleButton(context: vscode.ExtensionContext) {
     );
 
     context.subscriptions.push(disposable);
+}
+
+function showToggleBar() {
+    statusBarItem.text = 'TypeProf $(eye)';
+    statusBarItem.command = 'typeprof.toggle';
+    statusBarItem.show();
 }
 
 function addJumpToRBS(context: vscode.ExtensionContext) {
@@ -68,7 +72,6 @@ function addJumpToOutputChannel(context: vscode.ExtensionContext) {
     const disposable = vscode.commands.registerCommand('typeprof.jumpToOutputChannel', () => {
         outputChannel.show();
         progressBarItem.hide();
-        showErrorStatusBar();
     });
 
     context.subscriptions.push(disposable);
@@ -241,10 +244,10 @@ function invokeTypeProf(folder: vscode.WorkspaceFolder): LanguageClient {
 }
 
 const clientSessions: Map<vscode.WorkspaceFolder, State> = new Map();
-const timeoutSec = 10000;
+const failedTimeoutSec = 10000;
 
 let client: LanguageClient | undefined;
-function startTypeProf(folder: vscode.WorkspaceFolder) {
+function startTypeProf(context: vscode.ExtensionContext, folder: vscode.WorkspaceFolder) {
     const showStatus = (msg: string) => {
         outputChannel.appendLine('[vscode] ' + msg);
         progressBarItem.text = `$(sync~spin) ${msg}`;
@@ -255,15 +258,29 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
     const typeprof = getTypeProfVersion(folder, async (err, version) => {
         if (err !== null) {
             showStatus(`Ruby TypeProf is not configured`);
-            showFailedStatus();
+            setTimeout(() => {
+                showFailedStatus();
+            }, failedTimeoutSec);
             clientSessions.delete(folder);
             return;
         }
         showStatus(`Starting Ruby TypeProf (${version})...`);
         client = invokeTypeProf(folder);
-        progressBarItem.hide();
-        statusBarItem.show();
         await client.start();
+        showStatus('Ruby TypeProf is running');
+        // The old version does not support `typeprof.enableToggleButton`.
+        // Thus, we need to set timeout here.
+        setTimeout(() => {
+            enableToggleButton();
+        }, 3000);
+        context.subscriptions.push(
+            client.onNotification('typeprof.enableToggleButton', () => {
+                enableToggleButton();
+            }),
+            client.onNotification('typeprof.showErrorStatus', () => {
+                showFailedStatus();
+            }),
+        );
         clientSessions.set(folder, { kind: 'running', workspaceFolder: folder, client });
     });
 
@@ -271,10 +288,13 @@ function startTypeProf(folder: vscode.WorkspaceFolder) {
 }
 
 function showFailedStatus() {
-    setTimeout(() => {
-        progressBarItem.hide();
-        showErrorStatusBar();
-    }, timeoutSec);
+    progressBarItem.hide();
+    showErrorStatusBar();
+}
+
+function enableToggleButton() {
+    progressBarItem.hide();
+    showToggleBar();
 }
 
 function stopTypeProf(state: State) {
@@ -290,7 +310,7 @@ function stopTypeProf(state: State) {
     clientSessions.delete(state.workspaceFolder);
 }
 
-function restartTypeProf() {
+function restartTypeProf(context: vscode.ExtensionContext) {
     if (!vscode.workspace.workspaceFolders) {
         return;
     }
@@ -302,13 +322,13 @@ function restartTypeProf() {
             if (state) {
                 stopTypeProf(state);
             }
-            startTypeProf(folder);
+            startTypeProf(context, folder);
             break;
         }
     }
 }
 
-function ensureTypeProf() {
+function ensureTypeProf(context: vscode.ExtensionContext) {
     if (!vscode.workspace.workspaceFolders) {
         return;
     }
@@ -323,7 +343,7 @@ function ensureTypeProf() {
 
     for (const folder of activeFolders) {
         if (folder.uri.scheme === 'file' && !clientSessions.has(folder)) {
-            startTypeProf(folder);
+            startTypeProf(context, folder);
             break;
         }
     }
@@ -334,7 +354,7 @@ function addRestartCommand(context: vscode.ExtensionContext) {
         progressBarItem.hide();
         statusBarItem.hide();
         outputChannel.clear();
-        restartTypeProf();
+        restartTypeProf(context);
     });
     context.subscriptions.push(disposable);
 }
@@ -346,7 +366,7 @@ export function activate(context: vscode.ExtensionContext) {
     addJumpToOutputChannel(context);
     addJumpToRBS(context);
     addRestartCommand(context);
-    ensureTypeProf();
+    ensureTypeProf(context);
 }
 
 function stopAllSessions() {
