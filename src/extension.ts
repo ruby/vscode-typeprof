@@ -149,12 +149,10 @@ function getTypeProfVersion(
         if (code === 0) {
             const str = output.trim();
             log(`typeprof version: ${str}`);
-            const version = /^typeprof (\d+).(\d+).(\d+)$/.exec(str);
-            if (version) {
-                const major = Number(version[1]);
-                const minor = Number(version[2]);
-                const _teeny = Number(version[3]);
-                if (major >= 1 || (major === 0 && minor >= 20)) {
+            const version = /^typeprof (\d+.\d+.\d+)$/.exec(str);
+            if (version && version.length === 2) {
+                const checker = new VersionChecker(version[1]);
+                if (checker.greaterThanEqual('0.20.0')) {
                     callback(null, str);
                 } else {
                     const err = new Error(
@@ -371,5 +369,49 @@ export function deactivate() {
     stopAllSessions();
     if (client !== undefined) {
         return client.stop();
+    }
+}
+
+const versionRegexp = /^(\d+).(\d+).(\d+)$/;
+
+class VersionChecker {
+    private _major: string;
+    private _minor: string;
+    private _teeny: string;
+    constructor(version: string) {
+        const array = versionRegexp.exec(version);
+        if (array && array.length === 4) {
+            this._major = array[1];
+            this._minor = array[2];
+            this._teeny = array[3];
+            return this;
+        }
+        throw new Error('The format of version is invalid.');
+    }
+
+    greaterThanEqual(version: string) {
+        const array = versionRegexp.exec(version);
+        if (array && array.length === 4) {
+            const anotherMajor = array[1];
+            const anotherMinor = array[2];
+            const anotherTeeny = array[3];
+            if (this._major !== anotherMajor) {
+                return this.compare(this._major, anotherMajor);
+            }
+            if (this._minor !== anotherMinor) {
+                return this.compare(this._minor, anotherMinor);
+            }
+            if (this._teeny !== anotherTeeny) {
+                return this.compare(this._teeny, anotherTeeny);
+            }
+            return true;
+        }
+        throw new Error('The format of version is invalid.');
+    }
+
+    private compare(v1: string, v2: string) {
+        const v1Num = Number(v1);
+        const v2Num = Number(v2);
+        return v1Num > v2Num;
     }
 }
