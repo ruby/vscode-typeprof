@@ -72,7 +72,7 @@
         "lint:prettier": "prettier --check 'src/**/*.ts'",
         "format:eslint": "npm run lint:eslint -- --fix",
         "format:prettier": "npm run lint:prettier -- --write",
-        "format": "npm run fix:eslint && npm run fix:prettier",
+        "format": "npm run format:eslint && npm run format:prettier",
         "package": "vsce package"
     },
     "devDependencies": {
