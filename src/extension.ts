@@ -149,12 +149,9 @@ function getTypeProfVersion(
         if (code === 0) {
             const str = output.trim();
             log(`typeprof version: ${str}`);
-            const version = /^typeprof (\d+).(\d+).(\d+)$/.exec(str);
-            if (version) {
-                const major = Number(version[1]);
-                const minor = Number(version[2]);
-                const _teeny = Number(version[3]);
-                if (major >= 1 || (major === 0 && minor >= 20)) {
+            const version = /^typeprof (\d+.\d+.\d+)$/.exec(str);
+            if (version && version.length === 2) {
+                if (compareVersions(version[1], '0.20.0') >= 0) {
                     callback(null, str);
                 } else {
                     const err = new Error(
@@ -372,4 +369,35 @@ export function deactivate() {
     if (client !== undefined) {
         return client.stop();
     }
+}
+
+const versionRegexp = /^(\d+).(\d+).(\d+)$/;
+
+// compareVersions returns the following values:
+// v1 === v2 => return 0
+// v1 > v2 => return 1
+// v1 < v2 => return -1
+function compareVersions(v1: string, v2: string) {
+    const v1Versions = versionRegexp.exec(v1);
+    const v2Versions = versionRegexp.exec(v2);
+    if (v1Versions && v1Versions.length === 4 && v2Versions && v2Versions.length === 4) {
+        return (
+            compareNumbers(v1Versions[1], v2Versions[1]) ||
+            compareNumbers(v1Versions[2], v2Versions[2]) ||
+            compareNumbers(v1Versions[3], v2Versions[3])
+        );
+    }
+    throw new Error('The format of version is invalid.');
+}
+
+function compareNumbers(v1: string, v2: string) {
+    if (v1 === v2) {
+        return 0;
+    }
+    const v1Num = Number(v1);
+    const v2Num = Number(v2);
+    if (v1Num > v2Num) {
+        return 1;
+    }
+    return -1;
 }
