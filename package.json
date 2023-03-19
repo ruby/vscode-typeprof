@@ -69,7 +69,7 @@
         "pretest": "tsc -p ./",
         "test": "node ./out/src/test/runTest.js",
         "lint:eslint": "eslint src --ext ts",
-        "lint:prettier": "prettier --check 'src/**/*.ts'",
+        "lint:prettier": "prettier --check .",
         "format:eslint": "npm run lint:eslint -- --fix",
         "format:prettier": "npm run lint:prettier -- --write",
         "format": "npm run format:eslint && npm run format:prettier",
