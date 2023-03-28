@@ -225,7 +225,7 @@ function invokeTypeProf(folder: vscode.WorkspaceFolder): LanguageClient {
 
     const clientOptions: LanguageClientOptions = {
         documentSelector: [
-            { scheme: 'file', language: 'ruby' },
+            { scheme: 'file', language: 'ruby', pattern: '**/*.rb' },
             { scheme: 'file', language: 'rbs' },
         ],
         outputChannel,
