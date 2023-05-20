@@ -3,6 +3,17 @@ import * as Mocha from 'mocha';
 import * as glob from 'glob';
 
 export function run(): Promise<void> {
+    if (process.env.PATH && process.env.RUBY_BIN_PATH) {
+        console.log(
+            "Prefer a newly-installed Ruby version over the system's default one." +
+                ' This is a workaround for https://github.com/microsoft/vscode-test/issues/20',
+        );
+        const previous = process.env.PATH;
+        process.env.PATH = [process.env.RUBY_BIN_PATH, ...previous.split(path.delimiter)].join(path.delimiter);
+        console.log(`Previous PATH: ${previous}`);
+        console.log(` Current PATH: ${process.env.PATH}`);
+    }
+
     // Create the mocha test
     const mocha = new Mocha({
         ui: 'tdd',
@@ -11,7 +22,7 @@ export function run(): Promise<void> {
 
     const testsRoot = path.resolve(__dirname, '..');
 
-    mocha.timeout('30000');
+    mocha.timeout(60000);
 
     return new Promise((c, e) => {
         glob('**/**.test.js', { cwd: testsRoot }, (err, files) => {

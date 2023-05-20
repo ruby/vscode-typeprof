@@ -5,6 +5,7 @@ import { LanguageClient, LanguageClientOptions, ServerOptions } from 'vscode-lan
 import * as net from 'net';
 import * as child_process from 'child_process';
 import { existsSync } from 'fs';
+import * as path from 'path';
 
 interface Invoking {
     kind: 'invoking';
@@ -83,44 +84,29 @@ function showErrorStatusBar() {
     statusBarItem.show();
 }
 
-function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_process.ChildProcessWithoutNullStreams {
+function executeTypeProf(folder: vscode.WorkspaceFolder, arg: string): child_process.ChildProcessWithoutNullStreams {
     const configuration = vscode.workspace.getConfiguration(CONFIGURATION_ROOT_SECTION);
     const customServerPath = configuration.get<string | null>('server.path');
     const cwd = folder.uri.fsPath;
 
     let cmd: string;
-    if (existsSync(`${cwd}/bin/typeprof`)) {
-        cmd = './bin/typeprof';
+    const cmdArgs: string[] = [];
+
+    const binCmd = path.join(cwd, 'bin', 'typeprof');
+    if (existsSync(binCmd)) {
+        cmd = binCmd;
     } else if (customServerPath) {
         cmd = customServerPath;
-    } else if (existsSync(`${cwd}/Gemfile`)) {
-        cmd = 'bundle exec typeprof';
+    } else if (existsSync(path.join(cwd, 'Gemfile'))) {
+        cmd = 'bundle';
+        cmdArgs.push('exec', 'typeprof');
     } else {
         cmd = 'typeprof';
     }
-    cmd = cmd + ' ' + arg;
+    cmdArgs.push(arg);
 
-    const shell = process.env.SHELL;
-    let typeprof: child_process.ChildProcessWithoutNullStreams;
-    if (shell && (shell.endsWith('bash') || shell.endsWith('zsh') || shell.endsWith('fish'))) {
-        const args: string[] = [];
-        if (shell.endsWith('zsh')) {
-            // As the recommended way, initialization commands for rbenv are written in ".zshrc".
-            // However, it's not loaded on the non-interactive shell.
-            // Thus, we need to run this command as the interactive shell.
-            // FYI: https://zsh.sourceforge.io/Guide/zshguide02.html
-            args.push('-i');
-        }
-        args.push('-l', '-c', cmd);
-        typeprof = child_process.spawn(shell, args, { cwd });
-    } else if (process.platform === 'win32') {
-        typeprof = child_process.spawn(process.env.SYSTEMROOT + '\\System32\\cmd.exe', ['/c', cmd], { cwd });
-    } else {
-        const cmds = cmd.split(' ');
-        typeprof = child_process.spawn(cmds[0], cmds.slice(1), { cwd });
-    }
-
-    return typeprof;
+    const shell = process.env.SHELL || true;
+    return child_process.spawn(cmd, cmdArgs, { cwd, shell });
 }
 
 function getTypeProfVersion(
