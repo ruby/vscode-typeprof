@@ -90,16 +90,12 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
 
     let cmd: string;
     if (existsSync(`${cwd}/bin/typeprof`)) {
-        console.log('pattern1');
         cmd = './bin/typeprof';
     } else if (customServerPath) {
-        console.log('pattern2');
         cmd = customServerPath;
     } else if (existsSync(`${cwd}/Gemfile`)) {
-        console.log('pattern3');
         cmd = 'bundle exec typeprof';
     } else {
-        console.log('pattern4');
         cmd = 'typeprof';
     }
     cmd = cmd + ' ' + arg;
@@ -107,6 +103,7 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
     const shell = process.env.SHELL;
     let typeprof: child_process.ChildProcessWithoutNullStreams;
     if (shell && (shell.endsWith('bash') || shell.endsWith('zsh') || shell.endsWith('fish'))) {
+        console.log('pattern1');
         const args: string[] = [];
         if (shell.endsWith('zsh')) {
             // As the recommended way, initialization commands for rbenv are written in ".zshrc".
@@ -120,6 +117,7 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
     } else if (process.platform === 'win32') {
         typeprof = child_process.spawn(process.env.SYSTEMROOT + '\\System32\\cmd.exe', ['/c', cmd], { cwd });
     } else {
+        console.log('pattern2');
         const cmds = cmd.split(' ');
         typeprof = child_process.spawn(cmds[0], cmds.slice(1), { cwd });
     }
