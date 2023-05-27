@@ -351,7 +351,7 @@ function ensureTypeProf(context: vscode.ExtensionContext) {
 
     console.log('debug WS Folders---');
     for (const folder of activeFolders) {
-        console.log(folder.name);
+        console.log(folder.uri.fsPath);
     }
     console.log('--------------------');
     for (const folder of activeFolders) {
