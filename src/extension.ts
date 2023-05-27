@@ -103,7 +103,6 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
     const shell = process.env.SHELL;
     let typeprof: child_process.ChildProcessWithoutNullStreams;
     if (shell && (shell.endsWith('bash') || shell.endsWith('zsh') || shell.endsWith('fish'))) {
-        console.log('pattern1');
         const args: string[] = [];
         if (shell.endsWith('zsh')) {
             // As the recommended way, initialization commands for rbenv are written in ".zshrc".
@@ -112,12 +111,11 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
             // FYI: https://zsh.sourceforge.io/Guide/zshguide02.html
             args.push('-i');
         }
-        args.push('-l', '-c', cmd);
+        args.push('-i', '-l', '-c', cmd);
         typeprof = child_process.spawn(shell, args, { cwd });
     } else if (process.platform === 'win32') {
         typeprof = child_process.spawn(process.env.SYSTEMROOT + '\\System32\\cmd.exe', ['/c', cmd], { cwd });
     } else {
-        console.log('pattern2');
         const cmds = cmd.split(' ');
         typeprof = child_process.spawn(cmds[0], cmds.slice(1), { cwd });
     }
