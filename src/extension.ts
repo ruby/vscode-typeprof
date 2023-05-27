@@ -90,16 +90,16 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
 
     let cmd: string;
     if (existsSync(`${cwd}/bin/typeprof`)) {
-        console.log('pattern1')
+        console.log('pattern1');
         cmd = './bin/typeprof';
     } else if (customServerPath) {
-        console.log('pattern2')
+        console.log('pattern2');
         cmd = customServerPath;
     } else if (existsSync(`${cwd}/Gemfile`)) {
-        console.log('pattern3')
+        console.log('pattern3');
         cmd = 'bundle exec typeprof';
     } else {
-        console.log('pattern4')
+        console.log('pattern4');
         cmd = 'typeprof';
     }
     cmd = cmd + ' ' + arg;
