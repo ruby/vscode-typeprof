@@ -104,13 +104,13 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
     let typeprof: child_process.ChildProcessWithoutNullStreams;
     if (shell && (shell.endsWith('bash') || shell.endsWith('zsh') || shell.endsWith('fish'))) {
         const args: string[] = [];
-        if (shell.endsWith('zsh')) {
-            // As the recommended way, initialization commands for rbenv are written in ".zshrc".
-            // However, it's not loaded on the non-interactive shell.
-            // Thus, we need to run this command as the interactive shell.
-            // FYI: https://zsh.sourceforge.io/Guide/zshguide02.html
-            args.push('-i');
-        }
+        // if (shell.endsWith('zsh')) {
+        //     // As the recommended way, initialization commands for rbenv are written in ".zshrc".
+        //     // However, it's not loaded on the non-interactive shell.
+        //     // Thus, we need to run this command as the interactive shell.
+        //     // FYI: https://zsh.sourceforge.io/Guide/zshguide02.html
+        //     args.push('-i');
+        // }
         args.push('-i', '-l', '-c', cmd);
         typeprof = child_process.spawn(shell, args, { cwd });
     } else if (process.platform === 'win32') {
