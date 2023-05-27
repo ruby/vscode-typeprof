@@ -13,6 +13,7 @@ async function main() {
         const extensionTestsPath = path.resolve(__dirname, './suite/index');
         const projectRoot = path.join(__dirname, '..', '..', '..');
         const simpleProgramPath = path.join(projectRoot, 'src', 'test', 'simpleProgram');
+        console.log(`debugPath: ${simpleProgramPath.toString()}`)
 
         // Download VS Code, unzip it and run the integration test
         await runTests({ extensionDevelopmentPath, extensionTestsPath, launchArgs: [simpleProgramPath] });
