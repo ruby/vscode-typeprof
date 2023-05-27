@@ -349,6 +349,7 @@ function ensureTypeProf(context: vscode.ExtensionContext) {
         }
     });
 
+    console.log(`debugWSFoler:${activeFolders}`);
     for (const folder of activeFolders) {
         if (folder.uri.scheme === 'file' && !clientSessions.has(folder)) {
             startTypeProf(context, folder);
