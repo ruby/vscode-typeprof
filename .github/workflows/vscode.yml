@@ -33,6 +33,7 @@ jobs:
       with:
         node-version: 16.x
         cache: npm
+    - run: which bundler
     - name: Install npm packages
       run: npm ci
     - name: Lint ESLint
