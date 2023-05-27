@@ -90,12 +90,16 @@ function executeTypeProf(folder: vscode.WorkspaceFolder, arg: String): child_pro
 
     let cmd: string;
     if (existsSync(`${cwd}/bin/typeprof`)) {
+        console.log('pattern1')
         cmd = './bin/typeprof';
     } else if (customServerPath) {
+        console.log('pattern2')
         cmd = customServerPath;
     } else if (existsSync(`${cwd}/Gemfile`)) {
+        console.log('pattern3')
         cmd = 'bundle exec typeprof';
     } else {
+        console.log('pattern4')
         cmd = 'typeprof';
     }
     cmd = cmd + ' ' + arg;
@@ -349,11 +353,6 @@ function ensureTypeProf(context: vscode.ExtensionContext) {
         }
     });
 
-    console.log('debug WS Folders---');
-    for (const folder of activeFolders) {
-        console.log(folder.uri.fsPath);
-    }
-    console.log('--------------------');
     for (const folder of activeFolders) {
         if (folder.uri.scheme === 'file' && !clientSessions.has(folder)) {
             startTypeProf(context, folder);
