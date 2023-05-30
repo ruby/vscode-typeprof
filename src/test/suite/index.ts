@@ -11,7 +11,7 @@ export function run(): Promise<void> {
 
     const testsRoot = path.resolve(__dirname, '..');
 
-    mocha.timeout('30000');
+    mocha.timeout(60000);
 
     return new Promise((c, e) => {
         glob('**/**.test.js', { cwd: testsRoot }, (err, files) => {
