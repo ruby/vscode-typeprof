@@ -14,30 +14,38 @@ on:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         # TODO: support other platform such as macos
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
         ruby: ['3.1.0']
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set up Ruby
+      id: setup-ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
+        bundler: latest
     - name: Install Node.js
       uses: actions/setup-node@v3
       with:
         node-version: 16.x
-    - run: gem install bundler
-    - run: npm install
+        cache: npm
+    - name: Install npm packages
+      run: npm ci
     - name: Lint ESLint
       run: npm run lint:eslint
     - name: Lint Prettier
       run: npm run lint:prettier
-    - name: Test
+    - name: Test with Xvfb
       run: xvfb-run -a npm test
+      if: ${{ runner.os == 'Linux' }}
+    - name: Test
+      run: npm test
+      if: ${{ runner.os != 'Linux' }}
 
   dependabot:
     needs: test

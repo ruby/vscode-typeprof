@@ -10,7 +10,7 @@ const simpleProgramPath = path.join(projectRoot, 'src', 'test', 'simpleProgram')
 
 suite('completion', () => {
     setup(() => {
-        cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
+        installDependencies();
     });
 
     teardown(() => {
@@ -29,13 +29,13 @@ suite('completion', () => {
         assert.strictEqual(study[0].kind, vscode.CompletionItemKind.Method);
         const singletonClass = list.items.filter((item) => item.label === 'singleton_class');
         assert.strictEqual(singletonClass[0].kind, vscode.CompletionItemKind.Method);
-        assert.ok(singletonClass.length === 1);
+        assert.strictEqual(singletonClass.length, 1);
     });
 });
 
 suite('diagnostics', () => {
     setup(() => {
-        cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
+        installDependencies();
     });
 
     teardown(() => {
@@ -48,7 +48,7 @@ suite('diagnostics', () => {
         const actual = diagnostics.filter(
             (d) => d.message === '[error] wrong number of arguments (given 0, expected 1)',
         );
-        assert.ok(actual.length === 1);
+        assert.strictEqual(actual.length, 1);
         assert.strictEqual(actual[0].severity, vscode.DiagnosticSeverity.Error);
         assert.deepStrictEqual(
             actual[0].range,
@@ -62,7 +62,7 @@ suite('diagnostics', () => {
         const actual = diagnostics.filter(
             (d) => d.message === '[error] wrong number of arguments (given 2, expected 1)',
         );
-        assert.ok(actual.length === 1);
+        assert.strictEqual(actual.length, 1);
         assert.strictEqual(actual[0].severity, vscode.DiagnosticSeverity.Error);
         assert.deepStrictEqual(
             actual[0].range,
@@ -75,7 +75,7 @@ suite('diagnostics', () => {
         const diagnostics = vscode.languages.getDiagnostics(doc.uri);
         const actual = diagnostics.filter((d) => d.message === '[error] failed to resolve overload: Integer#+');
         // TODO: fix this length to 1
-        assert.ok(actual.length === 2);
+        assert.strictEqual(actual.length, 2);
         assert.strictEqual(actual[0].severity, vscode.DiagnosticSeverity.Error);
         assert.deepStrictEqual(
             actual[0].range,
@@ -86,7 +86,7 @@ suite('diagnostics', () => {
 
 suite('go to definitions', () => {
     setup(() => {
-        cp.execSync('bundle install; rbs collection install', { cwd: simpleProgramPath });
+        installDependencies();
     });
 
     teardown(() => {
@@ -100,8 +100,7 @@ suite('go to definitions', () => {
             doc.uri,
             new vscode.Position(10, 16),
         )) as vscode.Location[];
-        console.log(loc.length.toString());
-        assert.ok(loc && loc.length === 1);
+        assert.strictEqual(loc.length, 1);
         assert.deepStrictEqual(loc[0].range, new vscode.Range(new vscode.Position(1, 2), new vscode.Position(3, 5)));
     });
 
@@ -112,7 +111,7 @@ suite('go to definitions', () => {
             doc.uri,
             new vscode.Position(11, 5),
         )) as vscode.Location[];
-        assert.ok(loc && loc.length === 1);
+        assert.strictEqual(loc.length, 1);
         assert.deepStrictEqual(loc[0].range, new vscode.Range(new vscode.Position(5, 2), new vscode.Position(8, 5)));
     });
 });
@@ -128,4 +127,9 @@ function cleanUpFiles() {
     fs.unlinkSync(path.join(simpleProgramPath, 'rbs_collection.lock.yaml'));
     fs.unlinkSync(path.join(simpleProgramPath, 'Gemfile.lock'));
     fs.rmdirSync(path.join(simpleProgramPath, '.gem_rbs_collection'));
+}
+
+function installDependencies() {
+    const cwd = simpleProgramPath;
+    cp.execSync('bundle install && bundle exec rbs collection install', { cwd });
 }
