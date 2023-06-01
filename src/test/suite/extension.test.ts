@@ -17,7 +17,8 @@ suite('completion', () => {
         cleanUpFiles();
     });
 
-    test('liam.', async () => {
+    test('liam.', async function () {
+        this.retries(1); // Avoid flakiness. Perhaps starting up the LSP server may be slow.
         const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
         const list = (await vscode.commands.executeCommand(
             'vscode.executeCompletionItemProvider',
