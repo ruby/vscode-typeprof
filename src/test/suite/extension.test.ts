@@ -5,9 +5,6 @@ import * as fs from 'fs';
 
 import * as vscode from 'vscode';
 
-import { retryUntil } from './utils/retryUntil';
-import { sleep } from './utils/sleep';
-
 const projectRoot = path.join(__dirname, '..', '..', '..', '..');
 const simpleProgramPath = path.join(projectRoot, 'src', 'test', 'simpleProgram');
 
@@ -147,4 +144,22 @@ function cleanUpFiles() {
 function installDependencies() {
     const cwd = simpleProgramPath;
     cp.execSync('bundle install && bundle exec rbs collection install', { cwd });
+}
+
+async function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function retryUntil<T>(
+    task: () => Promise<T>,
+    { maxTries, sleepInMs }: { maxTries: number; sleepInMs: number },
+): Promise<T | undefined> {
+    for (let tries = 1; tries <= maxTries; tries++) {
+        const result = await task();
+        if (result) {
+            return result;
+        }
+        console.log('[%d/%d] retrying after %d ms...', tries, maxTries, sleepInMs);
+        await sleep(sleepInMs);
+    }
 }
