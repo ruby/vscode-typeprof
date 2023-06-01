@@ -5,6 +5,9 @@ import * as fs from 'fs';
 
 import * as vscode from 'vscode';
 
+import { retryUntil } from './utils/retryUntil';
+import { sleep } from './utils/sleep';
+
 const projectRoot = path.join(__dirname, '..', '..', '..', '..');
 const simpleProgramPath = path.join(projectRoot, 'src', 'test', 'simpleProgram');
 
@@ -18,19 +21,30 @@ suite('completion', () => {
     });
 
     test('liam.', async function () {
-        this.retries(1); // Avoid flakiness. Perhaps starting up the LSP server may be slow.
         const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
-        const list = (await vscode.commands.executeCommand(
-            'vscode.executeCompletionItemProvider',
-            doc.uri,
-            new vscode.Position(13, 18),
-        )) as vscode.CompletionList;
+        const pos = new vscode.Position(13, 18);
+        const list = await retryUntil(
+            async () => {
+                const cmd = 'vscode.executeCompletionItemProvider';
+                const list = await vscode.commands.executeCommand<vscode.CompletionList>(cmd, doc.uri, pos);
+                if (
+                    list &&
+                    list.items.length > 0 &&
+                    list.items.some((item) => item.kind === vscode.CompletionItemKind.Method)
+                ) {
+                    return list;
+                }
+            },
+            { maxTries: 10, sleepInMs: 500 },
+        );
+        assert.ok(list);
+
         const study = list.items.filter((item) => item.label === 'study');
         assert.strictEqual(study.length, 1);
         assert.strictEqual(study[0].kind, vscode.CompletionItemKind.Method);
         const singletonClass = list.items.filter((item) => item.label === 'singleton_class');
-        assert.strictEqual(singletonClass[0].kind, vscode.CompletionItemKind.Method);
         assert.strictEqual(singletonClass.length, 1);
+        assert.strictEqual(singletonClass[0].kind, vscode.CompletionItemKind.Method);
     });
 });
 
@@ -96,22 +110,22 @@ suite('go to definitions', () => {
 
     test('go to initialize method', async () => {
         const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
-        const loc = (await vscode.commands.executeCommand(
+        const loc = await vscode.commands.executeCommand<vscode.Location[]>(
             'vscode.executeDefinitionProvider',
             doc.uri,
             new vscode.Position(10, 16),
-        )) as vscode.Location[];
+        );
         assert.strictEqual(loc.length, 1);
         assert.deepStrictEqual(loc[0].range, new vscode.Range(new vscode.Position(1, 2), new vscode.Position(3, 5)));
     });
 
     test('go to study method', async () => {
         const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
-        const loc = (await vscode.commands.executeCommand(
+        const loc = await vscode.commands.executeCommand<vscode.Location[]>(
             'vscode.executeDefinitionProvider',
             doc.uri,
             new vscode.Position(11, 5),
-        )) as vscode.Location[];
+        );
         assert.strictEqual(loc.length, 1);
         assert.deepStrictEqual(loc[0].range, new vscode.Range(new vscode.Position(5, 2), new vscode.Position(8, 5)));
     });
