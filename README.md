@@ -24,7 +24,7 @@ This is a VSCode extension to help you write Ruby code by using an code analyzer
 
 ## Troubleshooting
 
-see [TypeProf's document](https://github.com/ruby/typeprof#documentation)
+Check out -> [TypeProf's document](https://github.com/ruby/typeprof#documentation)
 
 ## Limitations
 
