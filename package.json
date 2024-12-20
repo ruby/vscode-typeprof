@@ -25,7 +25,8 @@
         "workspace"
     ],
     "activationEvents": [
-        "onLanguage:ruby"
+        "onLanguage:ruby",
+        "onLanguage:rbs"
     ],
     "contributes": {
         "commands": [
