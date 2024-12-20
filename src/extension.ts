@@ -1,7 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { LanguageClient, LanguageClientOptions, ServerOptions } from 'vscode-languageclient/node';
+import { LanguageClient, LanguageClientOptions, ServerOptions, TextDocumentFilter } from 'vscode-languageclient/node';
 import * as net from 'net';
 import * as child_process from 'child_process';
 import { existsSync } from 'fs';
@@ -212,7 +212,7 @@ function getTypeProfStream(
     });
 }
 
-function invokeTypeProf(folder: vscode.WorkspaceFolder): LanguageClient {
+function invokeTypeProf(version: string, folder: vscode.WorkspaceFolder): LanguageClient {
     const reportError = (msg: string) => client?.info(msg);
 
     const serverOptions: ServerOptions = async () => {
@@ -226,11 +226,19 @@ function invokeTypeProf(folder: vscode.WorkspaceFolder): LanguageClient {
         };
     };
 
+    const documentSelector: TextDocumentFilter[] = [
+        { scheme: 'file', language: 'ruby' },
+        { scheme: 'file', language: 'rbs' },
+    ];
+
+    if (compareVersions(version, '0.30.1') < 0) {
+        // I don't know why, but this prevents the notification of changes of RBS files.
+        // This is needed because the old version of TypeProf does not support RBS changes.
+        documentSelector[0].pattern = '**/*.rb';
+    }
+
     const clientOptions: LanguageClientOptions = {
-        documentSelector: [
-            { scheme: 'file', language: 'ruby', pattern: '**/*.rb' },
-            { scheme: 'file', language: 'rbs' },
-        ],
+        documentSelector,
         outputChannel,
         synchronize: {
             fileEvents: vscode.workspace.createFileSystemWatcher('{**/*.rb,**/*.rbs}'),
@@ -268,7 +276,7 @@ function startTypeProf(context: vscode.ExtensionContext, folder: vscode.Workspac
             return;
         }
         showStatus(`Starting Ruby TypeProf (${version})...`);
-        client = invokeTypeProf(folder);
+        client = invokeTypeProf(version, folder);
         await client.start();
         showStatus('Ruby TypeProf is running');
         if (compareVersions(version, '0.21.8') >= 0) {
