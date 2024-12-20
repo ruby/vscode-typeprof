@@ -19,7 +19,7 @@
         "language server"
     ],
     "engines": {
-        "vscode": "^1.74.0"
+        "vscode": "^1.84.0"
     },
     "extensionKind": [
         "workspace"
@@ -82,6 +82,7 @@
         "@types/vscode": "^1.84.0",
         "@typescript-eslint/eslint-plugin": "^6.9.1",
         "@vscode/test-electron": "^2.3.6",
+        "@vscode/vsce": "^3.2.1",
         "eslint": "^8.53.0",
         "eslint-config-prettier": "^9.0.0",
         "glob": "^10.3.10",
