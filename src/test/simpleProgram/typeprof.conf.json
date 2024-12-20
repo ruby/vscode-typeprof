@@ -1,0 +1,5 @@
+{
+    "typeprof_version": "experimental",
+    "rbs_dir": ".",
+    "analysis_unit_dirs": ["."]
+}

@@ -1,3 +1,4 @@
 source "https://rubygems.org"
 
-gem "typeprof"
+gem "typeprof", ">= 0.30.0"
+gem "prism", ">= 1.2.0"
