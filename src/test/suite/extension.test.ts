@@ -57,9 +57,7 @@ suite('diagnostics', () => {
     test('wrong number of arguments (0 for 1)', async () => {
         const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
         const diagnostics = vscode.languages.getDiagnostics(doc.uri);
-        const actual = diagnostics.filter(
-            (d) => d.message === 'wrong number of arguments (0 for 1)',
-        );
+        const actual = diagnostics.filter((d) => d.message === 'wrong number of arguments (0 for 1)');
         assert.strictEqual(actual.length, 1);
         assert.strictEqual(actual[0].severity, vscode.DiagnosticSeverity.Error);
         assert.deepStrictEqual(
@@ -72,9 +70,7 @@ suite('diagnostics', () => {
         const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
         const diagnostics = vscode.languages.getDiagnostics(doc.uri);
         console.log(diagnostics);
-        const actual = diagnostics.filter(
-            (d) => d.message === 'wrong number of arguments (2 for 1)',
-        );
+        const actual = diagnostics.filter((d) => d.message === 'wrong number of arguments (2 for 1)');
         assert.strictEqual(actual.length, 1);
         assert.strictEqual(actual[0].severity, vscode.DiagnosticSeverity.Error);
         assert.deepStrictEqual(
