@@ -18,6 +18,7 @@ suite('completion', () => {
     });
 
     test('liam.', async function () {
+        this.skip(); // currently, this test does not work because TypeProf v0.30.0 does only support `self.` completion
         const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
         const pos = new vscode.Position(13, 18);
         const list = await retryUntil(
@@ -35,13 +36,12 @@ suite('completion', () => {
             { maxTries: 10, sleepInMs: 500 },
         );
         assert.ok(list);
-
-        const study = list.items.filter((item) => item.label === 'study');
-        assert.strictEqual(study.length, 1);
-        assert.strictEqual(study[0].kind, vscode.CompletionItemKind.Method);
-        const singletonClass = list.items.filter((item) => item.label === 'singleton_class');
-        assert.strictEqual(singletonClass.length, 1);
-        assert.strictEqual(singletonClass[0].kind, vscode.CompletionItemKind.Method);
+        //const study = list.items.filter((item) => item.label === 'study');
+        //assert.strictEqual(study.length, 1);
+        //assert.strictEqual(study[0].kind, vscode.CompletionItemKind.Method);
+        //const singletonClass = list.items.filter((item) => item.label === 'singleton_class');
+        //assert.strictEqual(singletonClass.length, 1);
+        //assert.strictEqual(singletonClass[0].kind, vscode.CompletionItemKind.Method);
     });
 });
 
@@ -54,44 +54,44 @@ suite('diagnostics', () => {
         cleanUpFiles();
     });
 
-    test('wrong number of arguments (given 0, expected 1)', async () => {
+    test('wrong number of arguments (0 for 1)', async () => {
         const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
         const diagnostics = vscode.languages.getDiagnostics(doc.uri);
         const actual = diagnostics.filter(
-            (d) => d.message === '[error] wrong number of arguments (given 0, expected 1)',
+            (d) => d.message === 'wrong number of arguments (0 for 1)',
         );
         assert.strictEqual(actual.length, 1);
         assert.strictEqual(actual[0].severity, vscode.DiagnosticSeverity.Error);
         assert.deepStrictEqual(
             actual[0].range,
-            new vscode.Range(new vscode.Position(13, 0), new vscode.Position(13, 10)),
+            new vscode.Range(new vscode.Position(13, 5), new vscode.Position(13, 10)),
         );
     });
 
-    test('wrong number of arguments (given 2, expected 1)', async () => {
+    test('wrong number of arguments (2 for 1)', async () => {
         const doc = await openTargetFile(path.join(simpleProgramPath, 'student.rb'));
         const diagnostics = vscode.languages.getDiagnostics(doc.uri);
+        console.log(diagnostics);
         const actual = diagnostics.filter(
-            (d) => d.message === '[error] wrong number of arguments (given 2, expected 1)',
+            (d) => d.message === 'wrong number of arguments (2 for 1)',
         );
         assert.strictEqual(actual.length, 1);
         assert.strictEqual(actual[0].severity, vscode.DiagnosticSeverity.Error);
         assert.deepStrictEqual(
             actual[0].range,
-            new vscode.Range(new vscode.Position(14, 0), new vscode.Position(14, 29)),
+            new vscode.Range(new vscode.Position(14, 5), new vscode.Position(14, 10)),
         );
     });
 
-    test('failed to resolve overload: Integer#+', async () => {
+    test('failed to resolve overloads', async () => {
         const doc = await openTargetFile(path.join(simpleProgramPath, 'increment.rb'));
         const diagnostics = vscode.languages.getDiagnostics(doc.uri);
-        const actual = diagnostics.filter((d) => d.message === '[error] failed to resolve overload: Integer#+');
-        // TODO: fix this length to 1
-        assert.strictEqual(actual.length, 2);
+        const actual = diagnostics.filter((d) => d.message === 'failed to resolve overloads');
+        assert.strictEqual(actual.length, 1);
         assert.strictEqual(actual[0].severity, vscode.DiagnosticSeverity.Error);
         assert.deepStrictEqual(
             actual[0].range,
-            new vscode.Range(new vscode.Position(6, 4), new vscode.Position(6, 17)),
+            new vscode.Range(new vscode.Position(6, 11), new vscode.Position(6, 13)),
         );
     });
 });
@@ -113,7 +113,7 @@ suite('go to definitions', () => {
             new vscode.Position(10, 16),
         );
         assert.strictEqual(loc.length, 1);
-        assert.deepStrictEqual(loc[0].range, new vscode.Range(new vscode.Position(1, 2), new vscode.Position(3, 5)));
+        assert.deepStrictEqual(loc[0].range, new vscode.Range(new vscode.Position(1, 6), new vscode.Position(1, 16)));
     });
 
     test('go to study method', async () => {
@@ -124,7 +124,7 @@ suite('go to definitions', () => {
             new vscode.Position(11, 5),
         );
         assert.strictEqual(loc.length, 1);
-        assert.deepStrictEqual(loc[0].range, new vscode.Range(new vscode.Position(5, 2), new vscode.Position(8, 5)));
+        assert.deepStrictEqual(loc[0].range, new vscode.Range(new vscode.Position(5, 6), new vscode.Position(5, 11)));
     });
 });
 
