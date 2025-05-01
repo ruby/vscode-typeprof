@@ -152,7 +152,7 @@ function getTypeProfVersion(
         if (code === 0) {
             const str = output.trim();
             log(`typeprof version: ${str}`);
-            const version = /typeprof (\d+.\d+.\d+)$/m.exec(str);
+            const version = /typeprof (\d+.\d+.\d+)$/.exec(str);
             if (version && version.length === 2) {
                 if (compareVersions(version[1], '0.20.0') >= 0) {
                     callback(null, version[1]);
