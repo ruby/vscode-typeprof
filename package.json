@@ -34,6 +34,11 @@
                 "command": "typeprof.restart",
                 "title": "Restart",
                 "category": "TypeProf"
+            },
+            {
+                "command": "typeprof.init",
+                "title": "Generate a TypeProf configuration file",
+                "category": "TypeProf"
             }
         ],
         "configuration": [
