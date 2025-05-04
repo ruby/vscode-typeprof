@@ -378,10 +378,39 @@ function addRestartCommand(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 }
 
+function addInitCommand(context: vscode.ExtensionContext) {
+    const disposable = vscode.commands.registerCommand('typeprof.init', () => {
+        if (!vscode.workspace.workspaceFolders) {
+            return;
+        }
+
+        for (const folder of vscode.workspace.workspaceFolders) {
+            if (folder.uri.scheme === 'file') {
+                let typeprof = executeTypeProf(folder, '--init');
+                typeprof.stdout.on('data', (data) => {
+                    let mes = ('' + data).trim();
+                    if (mes === 'invalid option: --init') {
+                        vscode.window.showErrorMessage(
+                            'The version of TypeProf does not support the `--init` option. Please check the version of TypeProf and update it.',
+                        );
+                    }
+                });
+                typeprof.stderr.on('data', (data) => {
+                    vscode.window.showErrorMessage(`Failed to generate TypeProf config file: ${data}`);
+                });
+
+                break;
+            }
+        }
+    });
+    context.subscriptions.push(disposable);
+}
+
 let outputChannel: vscode.OutputChannel;
 let traceOutputChannel: vscode.OutputChannel | undefined;
 export function activate(context: vscode.ExtensionContext) {
     outputChannel = vscode.window.createOutputChannel('Ruby TypeProf');
+    addInitCommand(context);
     addToggleButton(context);
     addJumpToOutputChannel(context);
     addJumpToRBS(context);
