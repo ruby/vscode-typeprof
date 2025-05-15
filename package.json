@@ -85,7 +85,7 @@
         "@vscode/vsce": "^3.2.1",
         "eslint": "^8.53.0",
         "eslint-config-prettier": "^9.0.0",
-        "glob": "^10.3.10",
+        "glob": "^11.0.2",
         "mocha": "^10.2.0",
         "prettier": "^3.2.5",
         "typescript": "^5.2.2"
