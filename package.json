@@ -34,6 +34,11 @@
                 "command": "typeprof.restart",
                 "title": "Restart",
                 "category": "TypeProf"
+            },
+            {
+                "command": "typeprof.toggle",
+                "title": "Toggle Signature",
+                "category": "TypeProf"
             }
         ],
         "configuration": [
