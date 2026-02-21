@@ -30,7 +30,7 @@ Check out -> [TypeProf's document](https://github.com/ruby/typeprof#documentatio
 
 * This extension only uses `typeprof.rbs`
 
-see also [How to use TypeProf for IDE](https://github.com/ruby/typeprof/blob/master/doc/ide.md)
+see also [How to use TypeProf for IDE](https://github.com/ruby/typeprof/blob/480c63b42797ba5f2bdc6a8d31dc75a994079976/doc/doc.md#how-to-use-typeprof-as-a-language-server)
 
 ## How to develop this extension
 
